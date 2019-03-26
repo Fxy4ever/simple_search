@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
-import 'package:simple_search/bean/stuBean.dart';
+import 'package:simple_search/bean/StuBean.dart';
 import 'package:simple_search/config/Api.dart';
 import 'package:simple_search/util/HttpUtil.dart';
 import 'ShowPhotoPage.dart';
@@ -43,6 +43,7 @@ class ShowDataState extends State<ShowDataWidget>{
     Http.get(url).then((res){
       if(res != null){
         Map<String,dynamic> map = jsonDecode(res);
+        print(res);
         StuBean stuBean = new StuBean.fromJson(map);
         setState(() {
           _myData = stuBean;
@@ -59,13 +60,13 @@ class ShowDataState extends State<ShowDataWidget>{
       loadData(searchInfo);
     }
     if(isload){
-      return ListView.builder(
+      return ListView.separated(
         itemCount: _myData.results.length ,
+        separatorBuilder: (BuildContext context, int index) => new Divider(),
         padding: const EdgeInsets.all(16.0),
         itemBuilder: (context,i){
           return _buildItem(i);
         },
-        shrinkWrap: true,
       );
     }else{
       return Container(
@@ -76,25 +77,18 @@ class ShowDataState extends State<ShowDataWidget>{
   }
 
   Widget _buildItem(int i){
-    if (i.isOdd) {//是奇数
-      return Divider( //返回分割线
-        height: 1.0,
+    if(_myData.results[i]!=null){
+      return new GestureDetector(
+          onTap: (){
+            Navigator.push(
+                context,
+                new MaterialPageRoute(
+                    builder: (context) =>
+                        ShowPhotoPage(stuNum: _myData.results[i].stuNum,))
+            );
+          },
+          child: _buildRow(_myData.results[i])
       );
-    } else {
-      i = i ~/ 2;
-      if(_myData.results[i]!=null){
-        return new GestureDetector(
-            onTap: (){
-              Navigator.push(
-                  context,
-                  new MaterialPageRoute(
-                      builder: (context) =>
-                          ShowPhotoPage(stuNum: _myData.results[i].stuNum,))
-              );
-            },
-            child: _buildRow(_myData.results[i])
-        );
-      }
     }
   }
 
